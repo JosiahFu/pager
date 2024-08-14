@@ -16,12 +16,14 @@ function App() {
     const [para, setPara] = useState(0);
 
     const paragraphs = text.split('\n\n').filter(e => e.trim() !== '').map(e => e.split('\n').map((e, i, {length}) => i + 1 === length ? e : html`${e}<br />`));
+
+    useEffect(() => {
+        if (!display)
+            textareaRef.current?.focus();
+    }, [display]);
     
     useEffect(() => {
-        if (!display) {
-            textareaRef.current?.focus();
-            return;
-        }
+        if (!display) return;
 
         const next = () => setPara(para => para + 1 < paragraphs.length ? para + 1 : para);
 
@@ -50,6 +52,7 @@ function App() {
                     break;
                 case 'Escape':
                     setDisplay(false);
+                    setPara(0);
                     break;
                 default:
                     return;
