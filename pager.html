@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pager</title>
+
+        <style>
+
+:root {
+    --bg-color: #22252b;
+    --fg-color-dimmed: #999;
+    --fg-color: #fff;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    margin: 0;
+    height: 100vh;
+    font-size: 2.5em;
+    overflow-y: hidden;
+    background-color: var(--bg-color);
+    color: var(--fg-color)
+}
+
+.prompt-page {
+    display: grid;
+    height: 100%;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+    gap: 1em;
+    padding: 2em;
+    box-sizing: border-box;
+}
+
+button {
+    font-size: inherit;
+    background-color: #fff2;
+    transition: 0.1s;
+    cursor: pointer;
+    border: none;
+    border-radius: 1em;
+    color: inherit;
+    padding: 0.5em;
+}
+
+button:hover:not(:active) {
+    background-color: #fff3;
+}
+
+textarea {
+    resize: none;
+    background-color: #fff1;
+    border: none;
+    border-radius: 1em;
+    padding: 1em;
+    color: inherit;
+    font-size: 0.5em;
+    transition: 0.05s;
+    font-family: inherit;
+}
+
+textarea:focus {
+    outline: none;
+    background-color: #ffffff17;
+}
+
+.text-page {
+    width: max-content;
+    max-width: 80vw;
+    margin: 50vh auto;
+}
+
+p {
+    opacity: 0.8;
+    transition: 0.5s;
+    margin: 4em 0;
+    line-height: 1.5;
+}
+
+p.selected {
+    opacity: 1;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background-image: linear-gradient(0deg, 
+        var(--bg-color) 0%,
+        #0000 30%,
+        #0000 70%,
+        var(--bg-color) 100%
+    );
+}
+        </style>
+    </head>
+
+    <body>
+        <script type="module">
+
+import { html, render, useState, useEffect, useRef } from 'https://unpkg.com/htm/preact/standalone.module.js'
+
+function App() {
+    /**
+     * @type {{current: HTMLParagraphElement}}
+     */
+    const pRef = useRef(null);
+
+    const [display, setDisplay] = useState(false);
+    const [text, setText] = useState('');
+
+    const [para, setPara] = useState(0);
+
+    const paragraphs = text.split('\n\n').filter(e => e.trim() !== '').map(e => e.split('\n').map((e, i, {length}) => i + 1 === length ? e : html`${e}<br />`));
+    
+    useEffect(() => {
+        if (!display) return;
+
+        const handler = event => {
+            switch(event.key) {
+                case 'Enter':
+                case ' ':
+                case 'ArrowDown':
+                case 'ArrowRight':
+                case 'PageDown':
+                    if (para + 1 < paragraphs.length)
+                        setPara(para + 1);
+                    break;
+                case 'ArrowLeft':
+                case 'ArrowUp':
+                case 'Backspace':
+                case 'PageUp':
+                    if (para > 0)
+                        setPara(para - 1);
+                    break;
+                case 'Home':
+                    setPara(0);
+                    break;
+                case 'End':
+                    setPara(paragraphs.length - 1);
+                    break;
+                default:
+                    return;
+            }
+            event.preventDefault();
+        };
+
+        addEventListener('keydown', handler);
+        return () => removeEventListener('keydown', handler)
+    }, [display, para, paragraphs]);
+    
+    useEffect(() => {
+        pRef.current?.scrollIntoView({behavior: 'smooth', block: 'center'})
+    })
+
+    return display ? html`<div class="text-page">${
+        paragraphs.map((e, i) => html`
+            <p className=${`${i === para ? 'selected' : ''}`} ref=${i === para ? pRef : undefined}>${e}</p>
+        `)
+    }</div><div class="overlay" />` : html`<div class="prompt-page">
+        <textarea value=${text} onInput=${event => setText(event.target.value)} />
+        <button onClick=${() => setDisplay(true)}>Go</button>
+    </div>`;
+}
+
+render(html`<${App} />`, document.body);
+
+        </script>
+    </body>
+</html>
