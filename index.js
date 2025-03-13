@@ -88,11 +88,14 @@ function App() {
         }
     };
 
-    return display ? html`<div class="text-page">${
-        paragraphs.map((e, i) => html`
-            <p className=${`${i === para ? 'selected' : ''}`} ref=${i === para ? pRef : undefined}>${e}</p>
-        `)
-    }</div><div class="overlay" />` : html`<div class="prompt-page">
+    return display ? html`<div class="text-page">
+        <div class="content">${
+            paragraphs.map((e, i) => html`
+                <p className=${`${i === para ? 'selected' : ''}`} ref=${i === para ? pRef : undefined}>${e}</p>
+            `)
+        }</div>
+    </div>
+    <div class="overlay" />` : html`<div class="prompt-page">
         <textarea ref=${textareaRef} autofocus value=${text} onInput=${event => setText(event.target.value)} onKeydown=${handleInputKey} />
         <button onClick=${() => setDisplay(true)}>Go</button>
     </div>`;

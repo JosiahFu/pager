@@ -11,7 +11,6 @@ body {
     margin: 0;
     height: 100vh;
     font-size: 2.5em;
-    overflow-y: hidden;
     background-color: var(--bg-color);
     color: var(--fg-color)
 }
@@ -59,6 +58,12 @@ textarea:focus {
 }
 
 .text-page {
+    position: absolute;
+    inset: 0;
+    overflow-y: hidden;
+}
+
+.content {
     width: max-content;
     max-width: 80vw;
     margin: 50vh auto;
